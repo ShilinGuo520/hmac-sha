@@ -55,13 +55,12 @@ unsigned int fun_e0(unsigned int x)
 
 unsigned int fun_ch(unsigned int x ,unsigned int y ,unsigned int z)
 {	//add init
-	(x & y) ^ (x & z)
-	return 0;
+	return ((x & y) ^ (((~x)+1) & z));
 }
 
-unsigned int fun_maj(unsigned int x1 ,unsigned int x2 ,unsigned int x3)
+unsigned int fun_maj(unsigned int x ,unsigned int y ,unsigned int z)
 {	//add init
-	return 0;
+	return ((x & y) ^ (x & z) ^ (y & z));
 }
 
 void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
@@ -118,7 +117,8 @@ int main()
 	unsigned int h_out[8];
 
 	int len;
-
+	
+	int i;
 	h_in[0] = 0x6a09e667;
 	h_in[1] = 0xbb67ae85;
 	h_in[2] = 0x3c6ef372;
@@ -133,6 +133,12 @@ int main()
 	len = strlen(st);
 	input_to_msg(msg, st, len);
 	sha_256_hash(h_in ,h_out ,msg);
+	printf("sha_256:\n");
+	for(i = 0 ;i < 8 ;i++) {
+		printf("%x\n" ,h_out[i]);
+	}
+	printf("\n");
+
 }
 
 
