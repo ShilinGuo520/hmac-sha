@@ -55,7 +55,7 @@ unsigned int fun_e0(unsigned int x)
 
 unsigned int fun_ch(unsigned int x ,unsigned int y ,unsigned int z)
 {	//add init
-	return ((x & y) ^ (((~x)+1) & z));
+	return ((x & y) ^ ((~x) & z));
 }
 
 unsigned int fun_maj(unsigned int x ,unsigned int y ,unsigned int z)
@@ -135,7 +135,7 @@ int main()
 	sha_256_hash(h_in ,h_out ,msg);
 	printf("sha_256:\n");
 	for(i = 0 ;i < 8 ;i++) {
-		printf("%x\n" ,h_out[i]);
+		printf("%x" ,h_out[i]);
 	}
 	printf("\n");
 
