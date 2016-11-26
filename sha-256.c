@@ -11,89 +11,83 @@ unsigned int K[64] = {	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x
 			0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2, };
 
 
-unsigned int msg[16];
+unsigned int msg[32];
 
-
-void input_format(unsigned char *st, int len)
-{
+void input_format(unsigned char *st_out ,unsigned char *st, int len)
+{	
 	int i;
-	unsigned int len_int ;
+	unsigned int int_len;
 	if(len < 56) {
-		st[len] = 0x80;
-		for(i = len + 1 ;i < 63 ;i++)
-			st[i] = 0x00;
+		for (i = 0 ;i < len ;i++) {
+			st_out[i] = st[i];
+		}
 
-		printf("len:%d\n",len);
+		st_out[i++] = 0x80;
 
-		len_int = len;
-		len_int = len_int * 8;
-
-		printf("len_int:%x\n",len_int);
-
-		st[63] = (unsigned char)len_int;
-		printf("st[63]:%x\n",st[63]);
-		st[62] = (unsigned char) (len_int >> 8);
-		printf("st[62]:%x\n",st[62]);
-		st[61] = (unsigned char) (len_int >> 16);
-		printf("st[61]:%x\n",st[61]);
-		st[60] = (unsigned char) (len_int >> 24);
-		printf("st[60]:%x\n",st[60]);
+		for ( ;i < 60 ; i++) {
+			st_out[i] = 0x00;
+		}
+		int_len = len;
+		int_len = int_len * 8;
+		st_out[63] = (unsigned char) (int_len);
+		st_out[62] = (unsigned char) (int_len >> 8);
+		st_out[61] = (unsigned char) (int_len >> 16);
+		st_out[60] = (unsigned char) (int_len >> 24);
 	} else {
-		st[len - 55] = 0x80 ;
-		for (i = len - 54 ;i < 63 ;i++)	
-			st[i] = 0x00;
-		len_int = len ;
-                len_int = len_int * 8;
-
-                printf("len_int:%x\n",len_int);
-
-                st[63] = (unsigned char)len_int;
-                printf("st[63]:%x\n",st[63]);
-                st[62] = (unsigned char) (len_int >> 8); 
-                printf("st[62]:%x\n",st[62]);
-                st[61] = (unsigned char) (len_int >> 16);
-                printf("st[61]:%x\n",st[61]);
-                st[60] = (unsigned char) (len_int >> 24);
-
+		for (i = 0 ;i < len ;i++) {
+			st_out[i] = st[i];
+		}
+		st_out[i++] = 0x80;
+		for ( ;i < 60 ; i++) {
+			st_out[i] = 0x00;
+		}
+		int_len = len;
+		int_len = int_len * 8;
+		st_out[127] = (unsigned char) (int_len);
+		st_out[126] = (unsigned char) (int_len >> 8);
+		st_out[125] = (unsigned char) (int_len >> 16);
+		st_out[124] = (unsigned char) (int_len >> 24); 
 	}
 }
 
-void input_to_msg(unsigned int *msg ,unsigned char *st ,int len)
+void input_to_msg(unsigned int *msg ,unsigned char *st_in ,int len)
 {
 	int i;
-	input_format(st ,len);
-	for(i=0 ;i < 16 ;i++) {
+	unsigned char st[128];
+	memset(st ,0 ,128);
+	input_format(st ,st_in ,len);
+	for(i=0 ;i < 32 ;i++) {
 		msg[i] = ((st[4*i]<<24)|(st[4*i + 1] << 16)|(st[4*i + 2] << 8)|st[4*i + 3]);
 	}
 }
 
 unsigned int fun_r1(unsigned int x)
-{	//add init
+{	
 	return (((x >> 17)|(x << 15)) ^ ((x >> 19)|(x << 13)) ^ (x >> 10));
 }
 
 unsigned int fun_r0(unsigned int x)
-{	//add init
+{
 	return (((x >> 7)|(x << 25)) ^ ((x >> 18)|(x << 14)) ^ (x >> 3));
 }
 
 unsigned int fun_e1(unsigned int x)
-{	//add init
+{
 	return (((x >> 6)|(x << 26)) ^ ((x >> 11)|(x << 21)) ^ ((x >> 25)|(x << 7)));
 }
 
 unsigned int fun_e0(unsigned int x)
-{	//add init
+{
 	return (((x >> 2)|(x << 30)) ^ ((x >> 13)|(x << 19)) ^ ((x >> 22)|(x << 10)));
 }
 
 unsigned int fun_ch(unsigned int x ,unsigned int y ,unsigned int z)
-{	//add init
+{
 	return ((x & y) ^ ((~x) & z));
 }
 
 unsigned int fun_maj(unsigned int x ,unsigned int y ,unsigned int z)
-{	//add init
+{
 	return ((x & y) ^ (x & z) ^ (y & z));
 }
 
@@ -119,7 +113,6 @@ void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 		else
 			w[t] = fun_r1(w[t-2]) + w[t-7] + fun_r0(w[t-15]) + w[t-16]; //call
 	}
-	
 	for (t = 0 ;t < 64 ;t++) {
 		T1 = h + fun_e1(e) + fun_ch(e ,f ,g) + K[t] + w[t];
 		T2 = fun_e0(a) + fun_maj(a ,b ,c);
@@ -167,7 +160,7 @@ int main()
 	
 	scanf("%s",st);
 	len = strlen(st);
-	if(len < 57) {
+	if(len < 56) {
 		input_to_msg(msg, st, len);
 		sha_256_hash(h_in ,h_out ,msg);
 		printf("sha_256:\n");
@@ -175,17 +168,10 @@ int main()
 			printf("%x" ,h_out[i]);
 		}
 		printf("\n");
-	}
-	else {
-		printf("too long\n");
+	} else {
                 input_to_msg(msg, st, len);
-
                 sha_256_hash(h_in ,h_out ,msg);
-
-		memset(msg ,0 ,64);
-		input_to_msg(msg, &st[56], len);
-
-                sha_256_hash(h_out ,h_out_2 ,msg);
+                sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
 		for(i = 0 ;i < 8 ;i++) {
                 	printf("%x" ,h_out_2[i]);
                 }
