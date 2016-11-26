@@ -11,7 +11,7 @@ unsigned int K[64] = {	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x
 			0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2, };
 
 
-unsigned int msg[32];
+unsigned int msg[64];
 
 void input_format(unsigned char *st_out ,unsigned char *st, int len)
 {	
@@ -33,30 +33,49 @@ void input_format(unsigned char *st_out ,unsigned char *st, int len)
 		st_out[62] = (unsigned char) (int_len >> 8);
 		st_out[61] = (unsigned char) (int_len >> 16);
 		st_out[60] = (unsigned char) (int_len >> 24);
-	} else {
+	} else if (len < 120) {
 		for (i = 0 ;i < len ;i++) {
 			st_out[i] = st[i];
 		}
 		st_out[i++] = 0x80;
-		for ( ;i < 60 ; i++) {
-			st_out[i] = 0x00;
-		}
 		int_len = len;
 		int_len = int_len * 8;
 		st_out[127] = (unsigned char) (int_len);
 		st_out[126] = (unsigned char) (int_len >> 8);
 		st_out[125] = (unsigned char) (int_len >> 16);
 		st_out[124] = (unsigned char) (int_len >> 24); 
+	} else if (len < 184) {
+                for (i = 0 ;i < len ;i++) {
+                        st_out[i] = st[i];
+                }   
+                st_out[i++] = 0x80;
+                int_len = len;
+                int_len = int_len * 8;
+                st_out[191] = (unsigned char) (int_len);
+                st_out[190] = (unsigned char) (int_len >> 8); 
+                st_out[189] = (unsigned char) (int_len >> 16);
+                st_out[188] = (unsigned char) (int_len >> 24); 
+	} else {
+                for (i = 0 ;i < len ;i++) {
+                        st_out[i] = st[i];
+                }   
+                st_out[i++] = 0x80;
+                int_len = len;
+                int_len = int_len * 8;
+                st_out[255] = (unsigned char) (int_len);
+                st_out[254] = (unsigned char) (int_len >> 8); 
+                st_out[253] = (unsigned char) (int_len >> 16);
+                st_out[252] = (unsigned char) (int_len >> 24); 
 	}
 }
 
 void input_to_msg(unsigned int *msg ,unsigned char *st_in ,int len)
 {
 	int i;
-	unsigned char st[128];
-	memset(st ,0 ,128);
+	unsigned char st[256];
+	memset(st ,0 ,256);
 	input_format(st ,st_in ,len);
-	for(i=0 ;i < 32 ;i++) {
+	for(i=0 ;i < 64 ;i++) {
 		msg[i] = ((st[4*i]<<24)|(st[4*i + 1] << 16)|(st[4*i + 2] << 8)|st[4*i + 3]);
 	}
 }
@@ -139,7 +158,7 @@ void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 
 int main()
 {
-	unsigned char st[128];
+	unsigned char st[256];
 	unsigned int h_in[8];
 	unsigned int h_out[8];
 	unsigned int h_out_2[8];
@@ -156,10 +175,11 @@ int main()
 	h_in[6] = 0x1f83d9ab;
 	h_in[7] = 0x5be0cd19;
 
-	memset(st ,0 ,128);
+	memset(st ,0 ,256);
 	
 	scanf("%s",st);
 	len = strlen(st);
+	printf("size: %d \n" ,len);
 	if(len < 56) {
 		input_to_msg(msg, st, len);
 		sha_256_hash(h_in ,h_out ,msg);
@@ -168,7 +188,7 @@ int main()
 			printf("%x" ,h_out[i]);
 		}
 		printf("\n");
-	} else {
+	} else if (len < 120) {
                 input_to_msg(msg, st, len);
                 sha_256_hash(h_in ,h_out ,msg);
                 sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
@@ -176,9 +196,27 @@ int main()
                 	printf("%x" ,h_out_2[i]);
                 }
                 printf("\n");
-
+	} else if (len < 184) {
+		printf("184 \n");
+		input_to_msg(msg, st, len);
+                sha_256_hash(h_in ,h_out ,msg);
+                sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
+		sha_256_hash(h_out_2 ,h_out ,&(msg[32]));
+                for(i = 0 ;i < 8 ;i++) {
+                        printf("%x" ,h_out[i]);
+                }
+                printf("\n");		
+	} else {
+                input_to_msg(msg, st, len);
+                sha_256_hash(h_in ,h_out ,msg);
+                sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
+                sha_256_hash(h_out_2 ,h_out ,&(msg[32]));
+		sha_256_hash(h_out ,h_out_2 ,&(msg[48]));
+                for(i = 0 ;i < 8 ;i++) {
+                        printf("%x" ,h_out_2[i]);
+                }
+                printf("\n");
 	}
-
 }
 
 
