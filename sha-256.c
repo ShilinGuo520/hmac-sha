@@ -17,11 +17,45 @@ unsigned int msg[16];
 void input_format(unsigned char *st, int len)
 {
 	int i;
-	st[len] = 0x80;
-	for(i = len + 1 ;i < 63 ;i++)
-		st[i] = 0x00;
+	unsigned int len_int ;
+	if(len < 56) {
+		st[len] = 0x80;
+		for(i = len + 1 ;i < 63 ;i++)
+			st[i] = 0x00;
 
-	st[63] = len * 8;
+		printf("len:%d\n",len);
+
+		len_int = len;
+		len_int = len_int * 8;
+
+		printf("len_int:%x\n",len_int);
+
+		st[63] = (unsigned char)len_int;
+		printf("st[63]:%x\n",st[63]);
+		st[62] = (unsigned char) (len_int >> 8);
+		printf("st[62]:%x\n",st[62]);
+		st[61] = (unsigned char) (len_int >> 16);
+		printf("st[61]:%x\n",st[61]);
+		st[60] = (unsigned char) (len_int >> 24);
+		printf("st[60]:%x\n",st[60]);
+	} else {
+		st[len - 55] = 0x80 ;
+		for (i = len - 54 ;i < 63 ;i++)	
+			st[i] = 0x00;
+		len_int = len ;
+                len_int = len_int * 8;
+
+                printf("len_int:%x\n",len_int);
+
+                st[63] = (unsigned char)len_int;
+                printf("st[63]:%x\n",st[63]);
+                st[62] = (unsigned char) (len_int >> 8); 
+                printf("st[62]:%x\n",st[62]);
+                st[61] = (unsigned char) (len_int >> 16);
+                printf("st[61]:%x\n",st[61]);
+                st[60] = (unsigned char) (len_int >> 24);
+
+	}
 }
 
 void input_to_msg(unsigned int *msg ,unsigned char *st ,int len)
@@ -112,9 +146,10 @@ void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 
 int main()
 {
-	unsigned char st[64];
+	unsigned char st[128];
 	unsigned int h_in[8];
 	unsigned int h_out[8];
+	unsigned int h_out_2[8];
 
 	int len;
 	
@@ -128,16 +163,35 @@ int main()
 	h_in[6] = 0x1f83d9ab;
 	h_in[7] = 0x5be0cd19;
 
-
+	memset(st ,0 ,128);
+	
 	scanf("%s",st);
 	len = strlen(st);
-	input_to_msg(msg, st, len);
-	sha_256_hash(h_in ,h_out ,msg);
-	printf("sha_256:\n");
-	for(i = 0 ;i < 8 ;i++) {
-		printf("%x" ,h_out[i]);
+	if(len < 57) {
+		input_to_msg(msg, st, len);
+		sha_256_hash(h_in ,h_out ,msg);
+		printf("sha_256:\n");
+		for(i = 0 ;i < 8 ;i++) {
+			printf("%x" ,h_out[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
+	else {
+		printf("too long\n");
+                input_to_msg(msg, st, len);
+
+                sha_256_hash(h_in ,h_out ,msg);
+
+		memset(msg ,0 ,64);
+		input_to_msg(msg, &st[56], len);
+
+                sha_256_hash(h_out ,h_out_2 ,msg);
+		for(i = 0 ;i < 8 ;i++) {
+                	printf("%x" ,h_out_2[i]);
+                }
+                printf("\n");
+
+	}
 
 }
 
