@@ -230,9 +230,10 @@ void int_to_char(unsigned char *ch, unsigned int *in)
 		ch[i] = (unsigned char) (in[i/4] >> 8 * ( 3 - (i%4)) );
 }
 
-#define blocksize 64
 
-int main()
+
+#define blocksize 64
+int amain(unsigned char *input_key ,unsigned char *input_msg)
 {
 	int i;
 	unsigned char st_in[256];
@@ -248,15 +249,15 @@ int main()
 	
 	printf("input msg:\n");
 	memset(st_in ,0 ,256);
-	scanf("%s" ,st_in);
-	//memcpy(st_in , "The quick brown fox jumps over the lazy dog" ,sizeof("The quick brown fox jumps over the lazy dog"));
+//	scanf("%s" ,st_in);
+	memcpy(st_in ,input_msg ,256);
 
 	printf("input key:\n");
 	memset(key_in ,0 ,64);
-	scanf("%s" ,key_in);
-	//memcpy(key_in ,"key" ,sizeof("key"));
+//	scanf("%s" ,key_in);
+	memcpy(key_in ,input_key ,64);	
 
-	key_size = sizeof(key_in);
+	key_size = strlen(key_in);
 
 	if(key_size < blocksize) {
 		//add in	
@@ -293,9 +294,65 @@ int main()
 
 	printf("hmac-sha256:\n");
 
-	for(i = 0 ;i < 8 ;i++) {
+	for(i = 0 ;i < 4 ;i++) {
 		printf("%x" ,out_data[i]);
 	}
 	printf("\n");
 	return 0;
 }
+
+
+int main()
+{
+        int i;
+        unsigned char input_char[512];
+        int input_len;
+        unsigned char input_hex[256];
+	unsigned char input_key_char[128];
+	unsigned char input_key_hex[64];
+
+        memset(input_char ,0 ,512);
+        memset(input_hex ,0 ,128);
+	memset(input_key_char ,0 ,128);
+	memset(input_key_hex ,0 ,64);
+
+        printf("input text:\n");
+        scanf("%s" ,input_char);
+
+        input_len = strlen(input_char);
+
+        printf("len:%d \n" ,input_len);
+        for (i = 0 ;i < input_len ;i++) {
+                if(input_char[i] > 57) {
+                        input_char[i] = input_char[i] - 87; 
+                } else {
+                        input_char[i] = input_char[i] - 48; 
+                }   
+                input_hex[i/2] |= input_char[i] << 4*(1 - i%2);
+        }   
+
+        for (i = 0 ;i < 128 ;i++) {
+                printf("%x" ,input_hex[i]);
+        }   
+        printf("\n");
+
+	printf("input key:\n");
+	scanf("%s" ,input_key_char);
+	
+	input_len = strlen(input_key_char);
+	for (i = 0 ;i < input_len ;i++) {
+		if(input_key_char[i] > 57) {
+			input_key_char[i] = input_key_char[i] - 87;
+		} else {
+			input_key_char[i] = input_key_char[i] - 48;
+		}
+		input_key_hex[i/2] |= input_key_char[i] << 4*(1 - i%2);
+	}
+	for (i = 0 ;i < 128 ;i++) {
+		printf("%x" ,input_key_hex[i]);
+	}
+	printf("\n");
+	amain(input_key_hex ,input_hex);
+        return 0;
+}
+
