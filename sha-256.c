@@ -156,7 +156,7 @@ void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 	
 }
 
-int main()
+void hash256(unsigned char *in,unsigned int *out)
 {
 	unsigned char st[256];
 	unsigned int h_in[8];
@@ -176,10 +176,10 @@ int main()
 	h_in[7] = 0x5be0cd19;
 
 	memset(st ,0 ,256);
-	
-	scanf("%s",st);
+	memcpy(st ,in ,256);
+
 	len = strlen(st);
-	printf("size: %d \n" ,len);
+	printf("sha-256:\ninput size: %d \n" ,len);
 	if(len < 56) {
 		input_to_msg(msg, st, len);
 		sha_256_hash(h_in ,h_out ,msg);
@@ -188,6 +188,7 @@ int main()
 			printf("%x" ,h_out[i]);
 		}
 		printf("\n");
+		memcpy(out ,h_out ,32);
 	} else if (len < 120) {
                 input_to_msg(msg, st, len);
                 sha_256_hash(h_in ,h_out ,msg);
@@ -196,6 +197,7 @@ int main()
                 	printf("%x" ,h_out_2[i]);
                 }
                 printf("\n");
+		memcpy(out ,h_out_2 ,32);
 	} else if (len < 184) {
 		printf("184 \n");
 		input_to_msg(msg, st, len);
@@ -206,6 +208,7 @@ int main()
                         printf("%x" ,h_out[i]);
                 }
                 printf("\n");		
+		memcpy(out ,h_out ,32);
 	} else {
                 input_to_msg(msg, st, len);
                 sha_256_hash(h_in ,h_out ,msg);
@@ -216,7 +219,83 @@ int main()
                         printf("%x" ,h_out_2[i]);
                 }
                 printf("\n");
+		memcpy(out ,h_out_2 ,32);
 	}
 }
 
+void int_to_char(unsigned char *ch, unsigned int *in)
+{
+	int i;
+	for(i = 0 ;i < 32 ;i++)
+		ch[i] = (unsigned char) (in[i/4] >> 8 * ( 3 - (i%4)) );
+}
 
+#define blocksize 64
+
+int main()
+{
+	int i;
+	unsigned char st_in[256];
+	unsigned char key_in[64];
+	unsigned char st_in_hash[512];
+
+	int key_size;
+	unsigned int out_data[8];
+	unsigned char out_char[32];
+
+	unsigned char o_key_pad[64];
+	unsigned char i_key_pad[64];
+	
+	printf("input msg:\n");
+	memset(st_in ,0 ,256);
+	scanf("%s" ,st_in);
+	//memcpy(st_in , "The quick brown fox jumps over the lazy dog" ,sizeof("The quick brown fox jumps over the lazy dog"));
+
+	printf("input key:\n");
+	memset(key_in ,0 ,64);
+	scanf("%s" ,key_in);
+	//memcpy(key_in ,"key" ,sizeof("key"));
+
+	key_size = sizeof(key_in);
+
+	if(key_size < blocksize) {
+		//add in	
+	}
+
+	for(i = 0 ;i < 64 ;i++) {
+		o_key_pad[i] = key_in[i] ^ 0x5c;
+		i_key_pad[i] = key_in[i] ^ 0x36;
+	}
+	
+	memset(st_in_hash ,0 ,512);
+	for(i = 0 ;i < 64 ;i++) {
+		st_in_hash[i] = i_key_pad[i];
+		
+	}
+	for( ;i < 329 ;i++) {
+		st_in_hash[i] = st_in[i - 64];
+	}
+
+	hash256(st_in_hash ,out_data);
+	int_to_char(out_char ,out_data);
+
+	memset(st_in_hash ,0 ,512);
+	for(i = 0 ;i < 64 ;i++) {
+		st_in_hash[i] = o_key_pad[i];
+	}
+	for( ;i < 96 ;i++) {
+		st_in_hash[i] = out_char[i - 64];
+	}
+	memset(out_data ,0 ,32);
+
+	hash256(st_in_hash ,out_data);
+	int_to_char(out_char ,out_data);
+
+	printf("hmac-sha256:\n");
+
+	for(i = 0 ;i < 8 ;i++) {
+		printf("%x" ,out_data[i]);
+	}
+	printf("\n");
+	return 0;
+}
