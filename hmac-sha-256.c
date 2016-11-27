@@ -316,9 +316,15 @@ int main()
 	memset(input_key_char ,0 ,128);
 	memset(input_key_hex ,0 ,64);
 
-        printf("input text:\n");
+        printf("input text U:\n");
         scanf("%s" ,input_char);
+	
+	printf("input text V:\n");
+	scanf("%s" ,&(input_char[48]));
 
+	printf("input text Z:\n");
+	scanf("%s" ,&(input_char[96]));
+	
         input_len = strlen(input_char);
 
         printf("len:%d \n" ,input_len);
@@ -332,7 +338,7 @@ int main()
         }   
 
 
-	printf("input key:\n");
+	printf("input key X:\n");
 	scanf("%s" ,input_key_char);
 	
 	input_len = strlen(input_key_char);
