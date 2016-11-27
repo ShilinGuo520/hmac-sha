@@ -179,6 +179,8 @@ void hash256(unsigned char *in,unsigned int *out)
 	memcpy(st ,in ,256);
 
 	len = strlen(st);
+	if(len == 112)
+		len++;
 	printf("sha-256:\ninput size: %d \n" ,len);
 	if(len < 56) {
 		input_to_msg(msg, st, len);
@@ -249,12 +251,10 @@ int amain(unsigned char *input_key ,unsigned char *input_msg)
 	
 	printf("input msg:\n");
 	memset(st_in ,0 ,256);
-//	scanf("%s" ,st_in);
 	memcpy(st_in ,input_msg ,256);
 
 	printf("input key:\n");
 	memset(key_in ,0 ,64);
-//	scanf("%s" ,key_in);
 	memcpy(key_in ,input_key ,64);	
 
 	key_size = strlen(key_in);
@@ -331,10 +331,6 @@ int main()
                 input_hex[i/2] |= input_char[i] << 4*(1 - i%2);
         }   
 
-        for (i = 0 ;i < 128 ;i++) {
-                printf("%x" ,input_hex[i]);
-        }   
-        printf("\n");
 
 	printf("input key:\n");
 	scanf("%s" ,input_key_char);
@@ -347,9 +343,6 @@ int main()
 			input_key_char[i] = input_key_char[i] - 48;
 		}
 		input_key_hex[i/2] |= input_key_char[i] << 4*(1 - i%2);
-	}
-	for (i = 0 ;i < 128 ;i++) {
-		printf("%x" ,input_key_hex[i]);
 	}
 	printf("\n");
 	amain(input_key_hex ,input_hex);
