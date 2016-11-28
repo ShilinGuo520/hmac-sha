@@ -104,10 +104,11 @@ void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 	h = h_in[7];
 
 	for (t = 0 ;t < 64 ;t++) {
-		if(t < 16) 
+		if(t < 16) {
 			w[t] = msg[t];
-		else
-			w[t] = fun_r1(w[t-2]) + w[t-7] + fun_r0(w[t-15]) + w[t-16]; //call
+		} else {
+			w[t] = fun_r1(w[t-2]) + w[t-7] + fun_r0(w[t-15]) + w[t-16];
+		}
 	}
 	for (t = 0 ;t < 64 ;t++) {
 		T1 = h + fun_e1(e) + fun_ch(e ,f ,g) + K[t] + w[t];
@@ -156,8 +157,9 @@ void hash256(unsigned char *in,unsigned int *out)
 	memcpy(st ,in ,256);
 
 	len = strlen(st);
-	if(len == 112)
+	if(len == 112) {
 		len++;
+	}
 	if(len < 56) {
 		input_to_msg(msg, st, len);
 		sha_256_hash(h_in ,h_out ,msg);
@@ -186,8 +188,9 @@ void hash256(unsigned char *in,unsigned int *out)
 void int_to_char(unsigned char *ch, unsigned int *in)
 {
 	int i;
-	for(i = 0 ;i < 32 ;i++)
+	for(i = 0 ;i < 32 ;i++) {
 		ch[i] = (unsigned char) (in[i/4] >> 8 * ( 3 - (i%4)) );
+	}
 }
 
 int amain(unsigned char *input_key ,unsigned char *input_msg)
@@ -214,8 +217,7 @@ int amain(unsigned char *input_key ,unsigned char *input_msg)
 	
 	memset(st_in_hash ,0 ,512);
 	for(i = 0 ;i < 64 ;i++) {
-		st_in_hash[i] = i_key_pad[i];
-		
+		st_in_hash[i] = i_key_pad[i];	
 	}
 	for( ;i < 329 ;i++) {
 		st_in_hash[i] = st_in[i - 64];
