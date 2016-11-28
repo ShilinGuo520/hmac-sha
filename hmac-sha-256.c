@@ -80,35 +80,15 @@ void input_to_msg(unsigned int *msg ,unsigned char *st_in ,int len)
 	}
 }
 
-unsigned int fun_r1(unsigned int x)
-{	
-	return (((x >> 17)|(x << 15)) ^ ((x >> 19)|(x << 13)) ^ (x >> 10));
-}
 
-unsigned int fun_r0(unsigned int x)
-{
-	return (((x >> 7)|(x << 25)) ^ ((x >> 18)|(x << 14)) ^ (x >> 3));
-}
+#define fun_r1(x) (((x >> 17)|(x << 15)) ^ ((x >> 19)|(x << 13)) ^ (x >> 10))
+#define fun_r0(x) (((x >> 7)|(x << 25)) ^ ((x >> 18)|(x << 14)) ^ (x >> 3))
+#define fun_e1(x) (((x >> 6)|(x << 26)) ^ ((x >> 11)|(x << 21)) ^ ((x >> 25)|(x << 7)))
+#define fun_e0(x) (((x >> 2)|(x << 30)) ^ ((x >> 13)|(x << 19)) ^ ((x >> 22)|(x << 10)))
 
-unsigned int fun_e1(unsigned int x)
-{
-	return (((x >> 6)|(x << 26)) ^ ((x >> 11)|(x << 21)) ^ ((x >> 25)|(x << 7)));
-}
+#define fun_ch(x , y ,z) ((x & y) ^ ((~x) & z))
+#define fun_maj(x , y ,z) ((x & y) ^ (x & z) ^ (y & z))
 
-unsigned int fun_e0(unsigned int x)
-{
-	return (((x >> 2)|(x << 30)) ^ ((x >> 13)|(x << 19)) ^ ((x >> 22)|(x << 10)));
-}
-
-unsigned int fun_ch(unsigned int x ,unsigned int y ,unsigned int z)
-{
-	return ((x & y) ^ ((~x) & z));
-}
-
-unsigned int fun_maj(unsigned int x ,unsigned int y ,unsigned int z)
-{
-	return ((x & y) ^ (x & z) ^ (y & z));
-}
 
 void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 {
