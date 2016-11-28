@@ -161,35 +161,20 @@ void hash256(unsigned char *in,unsigned int *out)
 	len = strlen(st);
 	if(len == 112)
 		len++;
-	printf("sha-256:\ninput size: %d \n" ,len);
 	if(len < 56) {
 		input_to_msg(msg, st, len);
 		sha_256_hash(h_in ,h_out ,msg);
-		printf("sha_256:\n");
-		for(i = 0 ;i < 8 ;i++) {
-			printf("%x" ,h_out[i]);
-		}
-		printf("\n");
 		memcpy(out ,h_out ,32);
 	} else if (len < 120) {
                 input_to_msg(msg, st, len);
                 sha_256_hash(h_in ,h_out ,msg);
                 sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
-		for(i = 0 ;i < 8 ;i++) {
-                	printf("%x" ,h_out_2[i]);
-                }
-                printf("\n");
 		memcpy(out ,h_out_2 ,32);
 	} else if (len < 184) {
-		printf("184 \n");
 		input_to_msg(msg, st, len);
                 sha_256_hash(h_in ,h_out ,msg);
                 sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
 		sha_256_hash(h_out_2 ,h_out ,&(msg[32]));
-                for(i = 0 ;i < 8 ;i++) {
-                        printf("%x" ,h_out[i]);
-                }
-                printf("\n");		
 		memcpy(out ,h_out ,32);
 	} else {
                 input_to_msg(msg, st, len);
@@ -197,10 +182,6 @@ void hash256(unsigned char *in,unsigned int *out)
                 sha_256_hash(h_out ,h_out_2 ,&(msg[16]));
                 sha_256_hash(h_out_2 ,h_out ,&(msg[32]));
 		sha_256_hash(h_out ,h_out_2 ,&(msg[48]));
-                for(i = 0 ;i < 8 ;i++) {
-                        printf("%x" ,h_out_2[i]);
-                }
-                printf("\n");
 		memcpy(out ,h_out_2 ,32);
 	}
 }
@@ -211,8 +192,6 @@ void int_to_char(unsigned char *ch, unsigned int *in)
 	for(i = 0 ;i < 32 ;i++)
 		ch[i] = (unsigned char) (in[i/4] >> 8 * ( 3 - (i%4)) );
 }
-
-
 
 int amain(unsigned char *input_key ,unsigned char *input_msg)
 {
@@ -225,11 +204,9 @@ int amain(unsigned char *input_key ,unsigned char *input_msg)
 	unsigned char o_key_pad[64];
 	unsigned char i_key_pad[64];
 	
-	printf("input msg:\n");
 	memset(st_in ,0 ,256);
 	memcpy(st_in ,input_msg ,256);
 
-	printf("input key:\n");
 	memset(key_in ,0 ,64);
 	memcpy(key_in ,input_key ,64);	
 
@@ -271,6 +248,25 @@ int amain(unsigned char *input_key ,unsigned char *input_msg)
 	return 0;
 }
 
+void str_to_hex(unsigned char *input_char , unsigned char *input_hex)
+{
+	int i;
+        int input_len = strlen(input_char);
+        for (i = 0 ;i < input_len ;i++) {
+                if(input_char[i] > 57) {
+                        input_char[i] = input_char[i] - 87; 
+                } else {
+                        input_char[i] = input_char[i] - 48; 
+                }   
+                input_hex[i/2] |= input_char[i] << 4*(1 - i%2);
+        }
+}
+
+unsigned char input_u[] = "356b31938421fbbf2fb331c89fd588a69367e9a833f56812";
+unsigned char input_v[] = "15207009984421a6586f9fc3fe7e4329d2809ea51125f8ed";
+unsigned char input_z[] = "00";
+
+unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
 
 int main()
 {
@@ -286,41 +282,15 @@ int main()
 	memset(input_key_char ,0 ,128);
 	memset(input_key_hex ,0 ,64);
 
-        printf("input text U:\n");
-        scanf("%s" ,input_char);
-	
-	printf("input text V:\n");
-	scanf("%s" ,&(input_char[48]));
+	memcpy(input_char ,input_u ,48);
+	memcpy(&(input_char[48]) ,input_v ,48);
+	memcpy(&(input_char[96]) ,input_z ,2);
 
-	printf("input text Z:\n");
-	scanf("%s" ,&(input_char[96]));
-	
-        input_len = strlen(input_char);
+	str_to_hex(input_char ,input_hex);
 
-        printf("len:%d \n" ,input_len);
-        for (i = 0 ;i < input_len ;i++) {
-                if(input_char[i] > 57) {
-                        input_char[i] = input_char[i] - 87; 
-                } else {
-                        input_char[i] = input_char[i] - 48; 
-                }   
-                input_hex[i/2] |= input_char[i] << 4*(1 - i%2);
-        }   
+	memcpy(input_key_char ,input_x ,32);
+	str_to_hex(input_key_char ,input_key_hex);
 
-
-	printf("input key X:\n");
-	scanf("%s" ,input_key_char);
-	
-	input_len = strlen(input_key_char);
-	for (i = 0 ;i < input_len ;i++) {
-		if(input_key_char[i] > 57) {
-			input_key_char[i] = input_key_char[i] - 87;
-		} else {
-			input_key_char[i] = input_key_char[i] - 48;
-		}
-		input_key_hex[i/2] |= input_key_char[i] << 4*(1 - i%2);
-	}
-	printf("\n");
 	amain(input_key_hex ,input_hex);
         return 0;
 }
