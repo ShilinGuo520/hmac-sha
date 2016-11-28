@@ -2,14 +2,24 @@
 #include "string.h"
 
 
-
 #define fun_r1(x) (((x >> 17)|(x << 15)) ^ ((x >> 19)|(x << 13)) ^ (x >> 10))
 #define fun_r0(x) (((x >> 7)|(x << 25)) ^ ((x >> 18)|(x << 14)) ^ (x >> 3))
 #define fun_e1(x) (((x >> 6)|(x << 26)) ^ ((x >> 11)|(x << 21)) ^ ((x >> 25)|(x << 7)))
 #define fun_e0(x) (((x >> 2)|(x << 30)) ^ ((x >> 13)|(x << 19)) ^ ((x >> 22)|(x << 10)))
-
 #define fun_ch(x , y ,z) ((x & y) ^ ((~x) & z))
 #define fun_maj(x , y ,z) ((x & y) ^ (x & z) ^ (y & z))
+
+
+
+/****************************************************************************/
+/***The input_u input_v input_z input_x reference Core_v4.2.pdf page 1570 ***/
+unsigned char input_u[] = "356b31938421fbbf2fb331c89fd588a69367e9a833f56812";
+unsigned char input_v[] = "15207009984421a6586f9fc3fe7e4329d2809ea51125f8ed";
+unsigned char input_z[] = "00";
+
+unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
+/****************************************************************************/
+
 
 unsigned int K[64] = {	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5, \
 			0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174, \
@@ -260,12 +270,6 @@ void str_to_hex(unsigned char *input_char , unsigned char *input_hex)
                 input_hex[i/2] |= input_char[i] << 4*(1 - i%2);
         }
 }
-
-unsigned char input_u[] = "356b31938421fbbf2fb331c89fd588a69367e9a833f56812";
-unsigned char input_v[] = "15207009984421a6586f9fc3fe7e4329d2809ea51125f8ed";
-unsigned char input_z[] = "00";
-
-unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
 
 int main()
 {
