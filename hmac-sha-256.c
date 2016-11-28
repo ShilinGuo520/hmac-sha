@@ -214,18 +214,14 @@ void int_to_char(unsigned char *ch, unsigned int *in)
 
 
 
-#define blocksize 64
 int amain(unsigned char *input_key ,unsigned char *input_msg)
 {
 	int i;
 	unsigned char st_in[256];
 	unsigned char key_in[64];
 	unsigned char st_in_hash[512];
-
-	int key_size;
 	unsigned int out_data[8];
 	unsigned char out_char[32];
-
 	unsigned char o_key_pad[64];
 	unsigned char i_key_pad[64];
 	
@@ -236,12 +232,6 @@ int amain(unsigned char *input_key ,unsigned char *input_msg)
 	printf("input key:\n");
 	memset(key_in ,0 ,64);
 	memcpy(key_in ,input_key ,64);	
-
-	key_size = strlen(key_in);
-
-	if(key_size < blocksize) {
-		//add in	
-	}
 
 	for(i = 0 ;i < 64 ;i++) {
 		o_key_pad[i] = key_in[i] ^ 0x5c;
