@@ -1,6 +1,16 @@
 #include "stdio.h"
 #include "string.h"
 
+
+
+#define fun_r1(x) (((x >> 17)|(x << 15)) ^ ((x >> 19)|(x << 13)) ^ (x >> 10))
+#define fun_r0(x) (((x >> 7)|(x << 25)) ^ ((x >> 18)|(x << 14)) ^ (x >> 3))
+#define fun_e1(x) (((x >> 6)|(x << 26)) ^ ((x >> 11)|(x << 21)) ^ ((x >> 25)|(x << 7)))
+#define fun_e0(x) (((x >> 2)|(x << 30)) ^ ((x >> 13)|(x << 19)) ^ ((x >> 22)|(x << 10)))
+
+#define fun_ch(x , y ,z) ((x & y) ^ ((~x) & z))
+#define fun_maj(x , y ,z) ((x & y) ^ (x & z) ^ (y & z))
+
 unsigned int K[64] = {	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5, \
 			0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174, \
 			0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da, \
@@ -9,9 +19,6 @@ unsigned int K[64] = {	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x
 			0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070, \
 			0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3, \
 			0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2, };
-
-
-unsigned int msg[64];
 
 void input_format(unsigned char *st_out ,unsigned char *st, int len)
 {	
@@ -80,16 +87,6 @@ void input_to_msg(unsigned int *msg ,unsigned char *st_in ,int len)
 	}
 }
 
-
-#define fun_r1(x) (((x >> 17)|(x << 15)) ^ ((x >> 19)|(x << 13)) ^ (x >> 10))
-#define fun_r0(x) (((x >> 7)|(x << 25)) ^ ((x >> 18)|(x << 14)) ^ (x >> 3))
-#define fun_e1(x) (((x >> 6)|(x << 26)) ^ ((x >> 11)|(x << 21)) ^ ((x >> 25)|(x << 7)))
-#define fun_e0(x) (((x >> 2)|(x << 30)) ^ ((x >> 13)|(x << 19)) ^ ((x >> 22)|(x << 10)))
-
-#define fun_ch(x , y ,z) ((x & y) ^ ((~x) & z))
-#define fun_maj(x , y ,z) ((x & y) ^ (x & z) ^ (y & z))
-
-
 void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 {
 	int t;
@@ -142,7 +139,7 @@ void hash256(unsigned char *in,unsigned int *out)
 	unsigned int h_in[8];
 	unsigned int h_out[8];
 	unsigned int h_out_2[8];
-
+	unsigned int msg[64];
 	int len;
 	
 	int i;
