@@ -13,22 +13,33 @@
 
 /****************************************************************************/
 /***The input_u input_v input_z input_x reference Core_v4.2.pdf page 1570 ***/
+#define F0_P_256 1
+
+#if F0_P_192
 unsigned char input_u[] = "356b31938421fbbf2fb331c89fd588a69367e9a833f56812";
 unsigned char input_v[] = "15207009984421a6586f9fc3fe7e4329d2809ea51125f8ed";
 unsigned char input_z[] = "00";
-
 unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
+#define INPUT_LEN 48
+#elif F0_P_256
+unsigned char input_u[] = "20b003d2f297be2c5e2c83a7e9f9a5b9eff49111acf4fddbcc0301480e359de6";
+unsigned char input_v[] = "55188b3d32f6bb9a900afcfbeed4e72a59cb9ac2f19d7cfb6b4fdd49f47fc5fd";
+unsigned char input_z[] = "00";
+unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
+#define INPUT_LEN 64
+#endif
 /****************************************************************************/
 
 
-unsigned int K[64] = {	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5, \
-			0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174, \
-			0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da, \
-			0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967, \
-			0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85, \
-			0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070, \
-			0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3, \
-			0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2, };
+unsigned int K[64] = {	\
+0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5, \
+0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174, \
+0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da, \
+0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967, \
+0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85, \
+0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070, \
+0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3, \
+0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2, };
 
 void input_format(unsigned char *st_out ,unsigned char *st, int len)
 {	
@@ -167,7 +178,7 @@ void hash256(unsigned char *in,unsigned int *out)
 	memcpy(st ,in ,256);
 
 	len = strlen(st);
-	if(len == 112) {
+	if((len == 112) || (len == 128) ) {
 		len++;
 	}
 	if(len < 56) {
@@ -285,9 +296,9 @@ int main()
 	memset(input_key_char ,0 ,128);
 	memset(input_key_hex ,0 ,64);
 
-	memcpy(input_char ,input_u ,48);
-	memcpy(&(input_char[48]) ,input_v ,48);
-	memcpy(&(input_char[96]) ,input_z ,2);
+	memcpy(input_char ,input_u ,INPUT_LEN);
+	memcpy(&(input_char[strlen(input_char)]) ,input_v ,INPUT_LEN);
+	memcpy(&(input_char[strlen(input_char)]) ,input_z ,2);
 
 	str_to_hex(input_char ,input_hex);
 
