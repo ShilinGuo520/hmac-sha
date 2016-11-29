@@ -3,16 +3,14 @@
 
 /****************************************************************************/
 /***The input_u input_v input_z input_x reference Core_v4.2.pdf page 1570 ***/
-unsigned char keyID[] = "6274646b";
-unsigned char A1[] = "56123737bfce";
-unsigned char A2[] = "a713702dcfc1";
-unsigned char input[] = "6274646b56123737bfcea713702dcfc1";
-unsigned char W[] = "c234c1198f3b520186ab92a2f874934e";
+unsigned char R1[] = "d5cb8454d177733effffb2ec712baeab";
+unsigned char R2[] = "a6e8e7cc25a75f6e216583f7ff3dc4cf";
+unsigned char W[] = "b089c4e39d7c192c3aba3c2109d24c0d";
 
 /****************************************************************************/
 
 
-int h_4(unsigned char *input_key ,unsigned char *input_msg)
+int h_5(unsigned char *input_key ,unsigned char *input_msg)
 {
 	int i;
 	unsigned char st_in[256];
@@ -41,8 +39,8 @@ int h_4(unsigned char *input_key ,unsigned char *input_msg)
 	for( ;i < 329 ;i++) {
 		st_in_hash[i] = st_in[i - 64];
 	}
-
-	hash256(st_in_hash ,out_data ,80);
+	
+	hash256(st_in_hash ,out_data ,96);
 
 	int_to_char(out_char ,out_data);
 
@@ -65,9 +63,11 @@ int h_4(unsigned char *input_key ,unsigned char *input_msg)
 	}
 	printf("\n");
 	
-	printf("Device Authentication Key:\n");
+	printf("SRESmaster:\n%x\n" ,out_data[0]);
+	printf("SRESslave:\n%x\n" ,out_data[1]);
 
-        for(i = 0 ;i < 4 ;i++) {
+	printf("ACO:\n");
+        for(i = 2 ;i < 4 ;i++) {
                 printf("%x" ,out_data[i]);
         }
         printf("\n");
@@ -89,16 +89,15 @@ int main()
 	memset(input_key_char ,0 ,128);
 	memset(input_key_hex ,0 ,64);
 
-	memcpy(input_char ,keyID ,8);
-	memcpy(&(input_char[strlen(input_char)]) ,A1 ,12);
-	memcpy(&(input_char[strlen(input_char)]) ,A2 ,12);
+	memcpy(input_char ,R1 ,32);
+	memcpy(&(input_char[strlen(input_char)]) ,R2 ,32);
 
 	str_to_hex(input_char ,input_hex);
 
 	memcpy(input_key_char ,W ,32);
 	str_to_hex(input_key_char ,input_key_hex);
 
-	h_4(input_key_hex ,input_hex);
+	h_5(input_key_hex ,input_hex);
         return 0;
 }
 
