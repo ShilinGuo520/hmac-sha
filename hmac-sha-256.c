@@ -9,28 +9,6 @@
 #define fun_ch(x , y ,z) ((x & y) ^ ((~x) & z))
 #define fun_maj(x , y ,z) ((x & y) ^ (x & z) ^ (y & z))
 
-
-
-/****************************************************************************/
-/***The input_u input_v input_z input_x reference Core_v4.2.pdf page 1570 ***/
-#define F0_P_256 1
-
-#if F0_P_192
-unsigned char input_u[] = "356b31938421fbbf2fb331c89fd588a69367e9a833f56812";
-unsigned char input_v[] = "15207009984421a6586f9fc3fe7e4329d2809ea51125f8ed";
-unsigned char input_z[] = "00";
-unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
-#define INPUT_LEN 48
-#elif F0_P_256
-unsigned char input_u[] = "20b003d2f297be2c5e2c83a7e9f9a5b9eff49111acf4fddbcc0301480e359de6";
-unsigned char input_v[] = "55188b3d32f6bb9a900afcfbeed4e72a59cb9ac2f19d7cfb6b4fdd49f47fc5fd";
-unsigned char input_z[] = "00";
-unsigned char input_x[] = "d5cb8454d177733effffb2ec712baeab";
-#define INPUT_LEN 64
-#endif
-/****************************************************************************/
-
-
 unsigned int K[64] = {	\
 0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5, \
 0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174, \
@@ -155,15 +133,13 @@ void sha_256_hash(unsigned int *h_in ,unsigned int *h_out ,unsigned int *msg)
 	
 }
 
-void hash256(unsigned char *in,unsigned int *out)
+void hash256(unsigned char *in ,unsigned int *out ,int len)
 {
 	unsigned char st[256];
 	unsigned int h_in[8];
 	unsigned int h_out[8];
 	unsigned int h_out_2[8];
 	unsigned int msg[64];
-	int len;
-	
 	int i;
 	h_in[0] = 0x6a09e667;
 	h_in[1] = 0xbb67ae85;
@@ -177,10 +153,6 @@ void hash256(unsigned char *in,unsigned int *out)
 	memset(st ,0 ,256);
 	memcpy(st ,in ,256);
 
-	len = strlen(st);
-	if((len == 112) || (len == 128) ) {
-		len++;
-	}
 	if(len < 56) {
 		input_to_msg(msg, st, len);
 		sha_256_hash(h_in ,h_out ,msg);
@@ -214,60 +186,6 @@ void int_to_char(unsigned char *ch, unsigned int *in)
 	}
 }
 
-int amain(unsigned char *input_key ,unsigned char *input_msg)
-{
-	int i;
-	unsigned char st_in[256];
-	unsigned char key_in[64];
-	unsigned char st_in_hash[512];
-	unsigned int out_data[8];
-	unsigned char out_char[32];
-	unsigned char o_key_pad[64];
-	unsigned char i_key_pad[64];
-	
-	memset(st_in ,0 ,256);
-	memcpy(st_in ,input_msg ,256);
-
-	memset(key_in ,0 ,64);
-	memcpy(key_in ,input_key ,64);	
-
-	for(i = 0 ;i < 64 ;i++) {
-		o_key_pad[i] = key_in[i] ^ 0x5c;
-		i_key_pad[i] = key_in[i] ^ 0x36;
-	}
-	
-	memset(st_in_hash ,0 ,512);
-	for(i = 0 ;i < 64 ;i++) {
-		st_in_hash[i] = i_key_pad[i];	
-	}
-	for( ;i < 329 ;i++) {
-		st_in_hash[i] = st_in[i - 64];
-	}
-
-	hash256(st_in_hash ,out_data);
-	int_to_char(out_char ,out_data);
-
-	memset(st_in_hash ,0 ,512);
-	for(i = 0 ;i < 64 ;i++) {
-		st_in_hash[i] = o_key_pad[i];
-	}
-	for( ;i < 96 ;i++) {
-		st_in_hash[i] = out_char[i - 64];
-	}
-	memset(out_data ,0 ,32);
-
-	hash256(st_in_hash ,out_data);
-	int_to_char(out_char ,out_data);
-
-	printf("hmac-sha256:\n");
-
-	for(i = 0 ;i < 4 ;i++) {
-		printf("%x" ,out_data[i]);
-	}
-	printf("\n");
-	return 0;
-}
-
 void str_to_hex(unsigned char *input_char , unsigned char *input_hex)
 {
 	int i;
@@ -281,31 +199,3 @@ void str_to_hex(unsigned char *input_char , unsigned char *input_hex)
                 input_hex[i/2] |= input_char[i] << 4*(1 - i%2);
         }
 }
-
-int main()
-{
-        int i;
-        unsigned char input_char[512];
-        int input_len;
-        unsigned char input_hex[256];
-	unsigned char input_key_char[128];
-	unsigned char input_key_hex[64];
-
-        memset(input_char ,0 ,512);
-        memset(input_hex ,0 ,128);
-	memset(input_key_char ,0 ,128);
-	memset(input_key_hex ,0 ,64);
-
-	memcpy(input_char ,input_u ,INPUT_LEN);
-	memcpy(&(input_char[strlen(input_char)]) ,input_v ,INPUT_LEN);
-	memcpy(&(input_char[strlen(input_char)]) ,input_z ,2);
-
-	str_to_hex(input_char ,input_hex);
-
-	memcpy(input_key_char ,input_x ,32);
-	str_to_hex(input_key_char ,input_key_hex);
-
-	amain(input_key_hex ,input_hex);
-        return 0;
-}
-
