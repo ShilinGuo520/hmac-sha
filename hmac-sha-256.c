@@ -22,7 +22,8 @@ unsigned int K[64] = {	\
 void input_format(unsigned char *st_out ,unsigned char *st, int len)
 {	
 	int i;
-	unsigned int int_len;
+	unsigned int int_len = len << 3;
+	
 	if(len < 56) {
 		for (i = 0 ;i < len ;i++) {
 			st_out[i] = st[i];
@@ -33,8 +34,6 @@ void input_format(unsigned char *st_out ,unsigned char *st, int len)
 		for ( ;i < 60 ; i++) {
 			st_out[i] = 0x00;
 		}
-		int_len = len;
-		int_len = int_len * 8;
 		st_out[63] = (unsigned char) (int_len);
 		st_out[62] = (unsigned char) (int_len >> 8);
 		st_out[61] = (unsigned char) (int_len >> 16);
@@ -44,8 +43,6 @@ void input_format(unsigned char *st_out ,unsigned char *st, int len)
 			st_out[i] = st[i];
 		}
 		st_out[i++] = 0x80;
-		int_len = len;
-		int_len = int_len * 8;
 		st_out[127] = (unsigned char) (int_len);
 		st_out[126] = (unsigned char) (int_len >> 8);
 		st_out[125] = (unsigned char) (int_len >> 16);
@@ -55,8 +52,6 @@ void input_format(unsigned char *st_out ,unsigned char *st, int len)
                         st_out[i] = st[i];
                 }   
                 st_out[i++] = 0x80;
-                int_len = len;
-                int_len = int_len * 8;
                 st_out[191] = (unsigned char) (int_len);
                 st_out[190] = (unsigned char) (int_len >> 8); 
                 st_out[189] = (unsigned char) (int_len >> 16);
@@ -66,8 +61,6 @@ void input_format(unsigned char *st_out ,unsigned char *st, int len)
                         st_out[i] = st[i];
                 }   
                 st_out[i++] = 0x80;
-                int_len = len;
-                int_len = int_len * 8;
                 st_out[255] = (unsigned char) (int_len);
                 st_out[254] = (unsigned char) (int_len >> 8); 
                 st_out[253] = (unsigned char) (int_len >> 16);
