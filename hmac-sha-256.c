@@ -75,7 +75,7 @@ void input_to_msg(unsigned int *msg ,unsigned char *st_in ,int len)
 	memset(st ,0 ,256);
 	input_format(st ,st_in ,len);
 	for(i=0 ;i < 64 ;i++) {
-		msg[i] = ((st[4*i]<<24)|(st[4*i + 1] << 16)|(st[4*i + 2] << 8)|st[4*i + 3]);
+		msg[i] = ((st[(i << 2)]<<24)|(st[(i << 2) + 1] << 16)|(st[(i << 2) + 2] << 8)|st[( i << 2) + 3]);
 	}
 }
 
@@ -175,7 +175,7 @@ void int_to_char(unsigned char *ch, unsigned int *in)
 {
 	int i;
 	for(i = 0 ;i < 32 ;i++) {
-		ch[i] = (unsigned char) (in[i/4] >> 8 * ( 3 - (i%4)) );
+		ch[i] = (unsigned char) (in[i >> 2] >> (( 3 - (i%4)) << 3 ) );
 	}
 }
 
