@@ -182,12 +182,48 @@ void hash1(unsigned char *in,unsigned int *out)
 	}
 }
 
+
+void int_to_char(unsigned char *ch, unsigned int *in)
+{
+        int i;
+        for(i = 0 ;i < 32 ;i++) {
+                ch[i] = (unsigned char) (in[i >> 2] >> (( 3 - (i%4)) << 3 ) );
+        }
+}
+
+void str_to_hex(unsigned char *input_char , unsigned char *input_hex)
+{
+        int i;
+        int input_len = strlen(input_char);
+        for (i = 0 ;i < input_len ;i++) {
+                if(input_char[i] > 57) {
+                        input_char[i] = input_char[i] - 87;
+                } else {
+                        input_char[i] = input_char[i] - 48;
+                }
+                input_hex[i/2] |= (input_char[i]) << (4*(1 - i%2));
+        }
+}
+
+
 int main()
 {	
-	unsigned char _in[512];
+	int i;
+	int len;
+	unsigned char char_in[512];
+	unsigned char hex_in[512];
 	unsigned int _out[32];
+	
+	memset(char_in ,0 ,512);
+	memset(hex_in ,0 ,512);
+
+	scanf("%s" ,char_in);
+	str_to_hex(char_in ,hex_in);
+	len = strlen(hex_in);
+	for (i = 0 ;i < len ;i ++) {
+		printf("%x" ,hex_in[i]);
+	}
 	printf("\n");
-	scanf("%s",_in);
-	hash1(_in ,_out);
+	hash1(hex_in ,_out);
 	return 0;
 }
